@@ -147,6 +147,8 @@ vii) You should now be able to launch the service node:
 ros2 run tutorial_service_client haiku_server
 ```
 
+:arrow_backward: [Go back.](#ros2-tutorial-22-services--clients)
+
 ### :mag: The Code Explained
 
 This substitution is just to make the code neater and more readable:
@@ -184,11 +186,12 @@ In this line, the node will continuously run and execute its callback whenever r
 ```
 rclcpp::spin(node);
 ```
-
-:arrow_backward: [Go back.](#ros2-tutorial-22-service--clients)
+:arrow_backward: [Go back.](#ros2-tutorial-22-services--clients)
 
 ## 2. Writing a Client Node
 
+:arrow_backward: [Go back.](#ros2-tutorial-22-services--clients)
+
 ### :mag: The Code Explained
 
-:arrow_backward: [Go back.](#ros2-tutorial-22-service--clients)
+:arrow_backward: [Go back.](#ros2-tutorial-22-services--clients)
