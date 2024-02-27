@@ -11,7 +11,6 @@ endif()
 find_package(ament_cmake REQUIRED)                                                                  # Used to build the package
 find_package(rclcpp REQUIRED)                                                                       # Standard ROS2 C++ libraries
 find_package(tutorial_service_definition REQUIRED)                                                  # Custom built
-find_package(std_msgs REQUIRED)
 
 if(BUILD_TESTING)
      find_package(ament_lint_auto REQUIRED)
@@ -27,7 +26,6 @@ endif()
 add_executable(haiku_server src/haiku_server.cpp)
 ament_target_dependencies(haiku_server
                           "rclcpp"
-                          "std_msgs"
                           "tutorial_service_definition")
 
 # This is needed so ROS can find the package
