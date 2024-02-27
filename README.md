@@ -192,8 +192,167 @@ rclcpp::spin(node);
 
 ## 2. Writing a Client Node
 
+i) In the direction `tutorial_service_client/src` create a file named `haiku_client.cpp` and add the following code:
+```
+#include <rclcpp/rclcpp.hpp>                                                                        // ROS2 C++ libraries
+#include <tutorial_service_definition/srv/haiku.hpp>                                                // Custom service type
+
+using HaikuService = tutorial_service_definition::srv::Haiku;                                       // Makes code easier to read
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+ //                                           MAIN                                                 //
+////////////////////////////////////////////////////////////////////////////////////////////////////
+int main(int argc, char **argv)
+{
+     rclcpp::init(argc,argv);                                                                       // Start up ROS2, if not already running
+     
+     // Minimum for argc is 1 but I don't know why ¯\_(ツ)_/¯
+     if(argc != 2)
+     {
+          RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Incorrect number of arguments. Usage is: `haiku_client X` where X = {1,2,3}.");
+          
+          return 1;                                                                                 // Exit main(), flag error
+     }
+     
+     std::string temp = argv[1];                                                                    // Convert char to string
+             
+     std::cout << temp << std::endl;
+ 
+     HaikuService::Request::SharedPtr request = std::make_shared<HaikuService::Request>();          // We need this absolutely ridiculous fucking declaration because ROS2 forces us to use std::shared_pointers everywhere
+     
+     request->line_number = std::stoi(temp);                                                        // Convert string to int
+     
+     // Check argument is valid
+     if( request->line_number != 1
+     and request->line_number != 2
+     and request->line_number != 3)
+     {
+          std::string message = "Expected argument to be 1, 2, or 3 but yours was "
+                              + std::to_string(request->line_number) + ".";
+                              
+          RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), message.c_str());
+          
+          return 1;                                                                                 // Exit main(), flag error
+     }
+       
+     rclcpp::Node::SharedPtr node = rclcpp::Node::make_shared("haiku_client");                      // Create node with given name
+     
+     rclcpp::Client<HaikuService>::SharedPtr client = node->create_client<HaikuService>("haiku_service"); // Create client with same name as server
+         
+     // Loop indefinitely while waiting for service. Exit if cancelled.
+     while(not client->wait_for_service(std::chrono::seconds(2)))
+     {
+          if(not rclcpp::ok())
+          {
+               RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Client interrupted while waiting for service. Exiting...");
+               
+               return 0;                                                                            // Exit main()
+          }
+     
+          RCLCPP_INFO(node->get_logger(), "Waited for service...");                                  // Inform user
+     }
+ 
+     auto response = client->async_send_request(request);                                           // WHAT IS THE DATA TYPE?! (ノಠ益ಠ)ノ彡┻━┻
+
+     // Wait for result from server
+     if(rclcpp::spin_until_future_complete(node,response) == rclcpp::FutureReturnCode::SUCCESS)
+     {
+          RCLCPP_INFO(node->get_logger(), response.get()->line.c_str());
+     }
+     else
+     {
+          RCLCPP_ERROR(node->get_logger(), "Service request failed.");
+     }
+     
+     rclcpp::shutdown();                                                                            // Shut down ROS2
+     
+     return 0;                                                                                      // No problems with main
+}
+```
+ii) Modify the `CMakeLists.txt` file in the root of `tutorial_service_client` to compile the new source file:
+```
+add_executable(haiku_client src/haiku_client.cpp)
+ament_target_dependencies(haiku_client
+                          "rclcpp"
+                          "tutorial_service_definition")
+```
+iii) Don't forget to modify the install targets so that it can be found by ROS:
+```
+# This is needed so ROS can find the package
+install(TARGETS
+        haiku_server
+        haiku_client
+        DESTINATION lib/${PROJECT_NAME})
+```
+iv) Now navigate back to your root ROS workspace directory and build:
+```
+colcon build --packages-select tutorial_service_client
+```
+v) Be sure to re-source so that it can be found by ROS:
+```
+source ./install/setup.bash
+```
+vi) Assuming that the `haiku_server` node is already running, we can run the client node:
+```
+ros2 run tutorial_service_client haiku_server 1
+```
+Launching the node successfully requires an integer argument between 1, 2 and 3. You should see something akin to:
+
+<img src="https://github.com/Woolfrey/tutorial_service_client/assets/62581255/bed80cf9-c4d0-4730-be34-1c9d3befd7f7" alt="image" width="900" height="auto">
+
+
 :arrow_backward: [Go back.](#ros2-tutorial-22-services--clients)
 
 ### :mag: The Code Explained
+
+This line starts up ROS2 (if not already running):
+```
+rclcpp::init(argc,argv);
+```
+This insanely convoluted line creates the request data type specified by `Haiku.srv` in the `tutorial_service_definition` package:
+```
+HaikuService::Request::SharedPtr request = std::make_shared<HaikuService::Request>();
+```
+then in these two lines we convert our input argument from a `char` to a `string` to an `int`:
+```
+std::string temp = argv[1];
+request->line_number = std::stoi(temp);
+```
+There's probably a smarter way to do this, but I've spent too much time on this already :man_shrugging:.
+
+This just ensures that the program cannot proceed unless the user has input the right value, since a Haiku has only 3 lines:
+```
+if( request->line_number != 1 and request->line_number != 2 and request->line_number != 3)
+{
+     ...
+}
+```
+In these lines we create the node named "haiku_client" and generate a client object from it:
+```
+rclcpp::Node::SharedPtr node = rclcpp::Node::make_shared("haiku_client");
+rclcpp::Client<HaikuService>::SharedPtr client = node->create_client<HaikuService>("haiku_service");
+```
+
+This code will loop indefinitely while it waits for the server to appear. It can be cancelled manually:
+```
+while(not client->wait_for_service(std::chrono::seconds(2)))
+{
+     ...
+}
+```
+
+This line sends the request to the server:
+```
+auto response = client->async_send_request(request);
+```
+(I _really_ don't like the use of `auto` here, but ROS2 is extremely convoluted...)
+
+Finally, this code determines if the response has been successfully processed and retrieved:
+```
+if(rclcpp::spin_until_future_complete(node,response) == rclcpp::FutureReturnCode::SUCCESS)
+{
+     ...
+}
+```
 
 :arrow_backward: [Go back.](#ros2-tutorial-22-services--clients)
