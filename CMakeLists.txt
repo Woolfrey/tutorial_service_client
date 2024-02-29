@@ -27,10 +27,16 @@ add_executable(haiku_server src/haiku_server.cpp)
 ament_target_dependencies(haiku_server
                           "rclcpp"
                           "tutorial_service_definition")
+                          
+add_executable(haiku_client src/haiku_client.cpp)
+ament_target_dependencies(haiku_client
+                          "rclcpp"
+                          "tutorial_service_definition")
 
 # This is needed so ROS can find the package
 install(TARGETS
         haiku_server
+        haiku_client
         DESTINATION lib/${PROJECT_NAME})
         
         
