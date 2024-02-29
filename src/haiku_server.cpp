@@ -9,7 +9,7 @@ using HaikuService = tutorial_service_definition::srv::Haiku;                   
  * @param response A string containing the line of the poem.
  */
 void get_line(const std::shared_ptr<HaikuService::Request>   request,
-                    std::shared_ptr<HaikuService::Response> response)                                        
+                    std::shared_ptr<HaikuService::Response>  response)                                        
 {
      // For reference, Haiku.srv:
      //  # Request
