@@ -40,7 +40,8 @@ The service and client model is more like sending a letter directly to someone, 
 
 ## 1. Writing a Service Node
 
-:rotating_light: As a prerquisite, make sure you have created and compiled the [tutorial_service_definition](https://github.com/Woolfrey/tutorial_service_definition) package. :rotating_light:
+>[!WARNING]
+> As a prerquisite, make sure you have created and compiled the [tutorial_service_definition](https://github.com/Woolfrey/tutorial_service_definition) package.
 
 i) Navigate to your ROS2 workspace source folder and create the new package:
 ```
@@ -149,7 +150,7 @@ vii) You should now be able to launch the service node:
 ros2 run tutorial_service_client haiku_server
 ```
 
-:arrow_backward: [Go back.](#ros2-tutorial-22-services--clients)
+[:arrow_backward: Go back.](#ros2-tutorial-22-services--clients)
 
 ### :mag: The Code Explained
 
@@ -188,7 +189,7 @@ In this line, the node will continuously run and execute its callback whenever r
 ```
 rclcpp::spin(node);
 ```
-:arrow_backward: [Go back.](#ros2-tutorial-22-services--clients)
+[:arrow_backward: Go back.](#ros2-tutorial-22-services--clients)
 
 ## 2. Writing a Client Node
 
@@ -300,8 +301,7 @@ Launching the node successfully requires an integer argument between 1, 2 and 3.
 
 <img src="https://github.com/Woolfrey/tutorial_service_client/assets/62581255/bed80cf9-c4d0-4730-be34-1c9d3befd7f7" alt="image" width="900" height="auto">
 
-
-:arrow_backward: [Go back.](#ros2-tutorial-22-services--clients)
+[:arrow_backward: Go back.](#ros2-tutorial-22-services--clients)
 
 ### :mag: The Code Explained
 
@@ -355,4 +355,4 @@ if(rclcpp::spin_until_future_complete(node,response) == rclcpp::FutureReturnCode
 }
 ```
 
-:arrow_backward: [Go back.](#ros2-tutorial-22-services--clients)
+[:arrow_backward: Go back.](#ros2-tutorial-22-services--clients)
